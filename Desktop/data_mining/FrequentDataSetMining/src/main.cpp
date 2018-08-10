@@ -133,16 +133,16 @@ int main(int argc,char* argv[]){
 		vector <si> fk;
 		for(int i=0;i<cand_set_vect.size();i++){
 			if(cand_set_count[i]>=min_sup_trans){
-				// debug_set(cand_set_vect[i]);
 				fk.push_back(cand_set_vect[i]);
 			}
 		}
-		frequentItemSet.push_back(fk);	
+		if(fk.size()!=0)
+			frequentItemSet.push_back(fk);	
 		fkminus1 = fk;
   	}
-  	// for(int i=0;i<frequentItemSet.size();i++){
-  	// 	for(int j=0;frequentItemSet[i].size();j++){
-  	// 		debug_set(frequentItemSet[i][j]);
-  	// 	}
-  	// }
+  	for(int i=0;i<frequentItemSet.size();i++){
+  		for(int j=0;j<frequentItemSet[i].size();j++){
+  			debug_set(frequentItemSet[i][j]);
+  		}
+  	}
 }

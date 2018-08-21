@@ -20,7 +20,7 @@ map<int,int> inv_name_change;
 map<int, vector<node*> > global_chain;
 vector<si> frequentItemSets;
 
-void debug_set(si sett){
+void debug_set(si& sett){
 	for(si::iterator it=sett.begin();it!=sett.end();++it){
 		cout << *it << " ";
 	}
@@ -78,7 +78,7 @@ void first_pass(string file_name, double supp_thresh){
 	}
 }
 
-void add_transaction(node* root, si transaction, map<int, vector<node*> >& linear_chain, int factor){
+void add_transaction(node* root, si& transaction, map<int, vector<node*> >& linear_chain, int factor){
 	node *curr_node = root;
 	for(si::iterator it=transaction.begin();it!=transaction.end();++it){
 		if(curr_node->children.count(*it)==0){
@@ -106,30 +106,45 @@ void make_tree(string file_name, node* root){
   	in.close();
 }
 
-void fp_growth(node* root, map<int, vector<node*> > header_table, si exist_pattern){
+
+void fp_growth(node* root, map<int, vector<node*> >& header_table, si exist_pattern){
 	for(map<int, vector<node*> >::reverse_iterator it=header_table.rbegin();it!=header_table.rend();++it){
 		int new_elem = it->first;
 		vector<node*> my_list = header_table[new_elem];
-		int elem_count = 0;
-		for(int i=0;i<my_list.size();i++){
-			elem_count +=my_list[i]->count;
-		}
-		if(elem_count>=min_sup_trans){
-			exist_pattern.insert(inv_name_change[new_elem]);
-			frequentItemSets.push_back(exist_pattern);
-		}
-		else{
-			continue;
-		}
+
+		exist_pattern.insert(inv_name_change[new_elem]);
+		frequentItemSets.push_back(exist_pattern);
+		debug_set(exist_pattern);
+		
 		map<int, vector<node*> > conditional_header_table;
 		node *cond_root = make_node(0, NULL);
+		map<int, int> cond_elem_count;
+		for(int i=0;i<my_list.size();i++){
+			node *curr_node = my_list[i];
+			while(curr_node->parent){
+				curr_node = curr_node->parent;
+				if(curr_node->item!=0){
+					int item_no = curr_node->item;
+					if(cond_elem_count.count(item_no)==0){
+						cond_elem_count[item_no] = my_list[i]->count;
+					}
+					else{
+						cond_elem_count[item_no] += my_list[i]->count;
+					}
+				}			
+			}
+		}
+
 		for(int i=0;i<my_list.size();i++){
 			si elems;
 			node *curr_node = my_list[i];
 			while(curr_node->parent){
 				curr_node = curr_node->parent;
 				if(curr_node->item!=0){
-					elems.insert(curr_node->item);
+					int item_no = curr_node->item;
+					if(cond_elem_count[item_no]>=min_sup_trans){
+						elems.insert(item_no);
+					}
 				}			
 			}
 			add_transaction(cond_root, elems, conditional_header_table, my_list[i]->count);
@@ -152,10 +167,11 @@ int main(int argc,char* argv[]){
 	make_tree(file_name, root);
 	si item_set;
 	fp_growth(root, global_chain, item_set);
-	for(int i=1;i<=3;i++){
-		for(int j=0;j<frequentItemSets.size();j++){
-			if(frequentItemSets[j].size()==i)
-				debug_set(frequentItemSets[j]);
-		}
-	}
+	// cout << frequentItemSets.size();
+	// for(int i=1;i<=4;i++){
+	// 	for(int j=0;j<frequentItemSets.size();j++){
+	// 		if(frequentItemSets[j].size()==i)
+	// 			debug_set(frequentItemSets[j]);
+	// 	}
+	// }
 }

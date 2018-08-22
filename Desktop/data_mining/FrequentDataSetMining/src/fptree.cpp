@@ -19,12 +19,14 @@ map<int,int> name_change;
 map<int,int> inv_name_change;
 map<int, vector<node*> > global_chain;
 vector<si> frequentItemSets;
+ofstream myfile;
+string output_file;
 
 void debug_set(si& sett){
 	for(si::iterator it=sett.begin();it!=sett.end();++it){
-		cout << *it << " ";
+		myfile << *it << " ";
 	}
-	cout << endl;
+	myfile << endl;
 }
 
 void debug_map(map<int,int> mapp){
@@ -162,12 +164,15 @@ void fp_growth(node* root, map<int, vector<node*> >& header_table, si exist_patt
 int main(int argc,char* argv[]){
 	string file_name = argv[1];
 	double supp_thresh = atof(argv[2])/100.0;
+	output_file = string(argv[3]) + ".txt";
+	myfile.open(output_file);
 	first_pass(file_name, supp_thresh);
 	node *root = make_node(0, NULL);
 	make_tree(file_name, root);
 	si item_set;
 	fp_growth(root, global_chain, item_set);
-	// cout << frequentItemSets.size();
+	cout << frequentItemSets.size() <<endl;
+	myfile.close();
 	// for(int i=1;i<=4;i++){
 	// 	for(int j=0;j<frequentItemSets.size();j++){
 	// 		if(frequentItemSets[j].size()==i)

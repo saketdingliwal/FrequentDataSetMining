@@ -7,7 +7,8 @@ map<int,int> all_items;
 int num_transactions;
 double min_sup_trans;
 vector <vector<si> > frequentItemSet; 
-
+ofstream myfile;
+string output_file;
 
 void first_pass(string file_name, double supp_thresh){
 	ifstream in(file_name);
@@ -37,10 +38,11 @@ void first_pass(string file_name, double supp_thresh){
 }
 
 void debug_set(si sett){
+	
 	for(si::iterator it=sett.begin();it!=sett.end();++it){
-		cout << *it << " ";
+		myfile << *it << " ";
 	}
-	cout << endl;
+	myfile << endl;
 }
 
 bool each_subset(si cand_set, map<si,bool> set_map){
@@ -100,6 +102,8 @@ vector<si> cand_gen(vector<si> fkminus1){
 int main(int argc,char* argv[]){
 	string file_name = argv[1];
 	double supp_thresh = atof(argv[2])/100.0;
+	output_file = string(argv[3]) + ".txt";
+	myfile.open(output_file);
 	first_pass(file_name, supp_thresh);
 
 	vector <si> fkminus1 = frequentItemSet[0];
@@ -140,9 +144,14 @@ int main(int argc,char* argv[]){
 			frequentItemSet.push_back(fk);	
 		fkminus1 = fk;
   	}
+  	int counter=0;
   	for(int i=0;i<frequentItemSet.size();i++){
   		for(int j=0;j<frequentItemSet[i].size();j++){
+  			counter += 1;
   			debug_set(frequentItemSet[i][j]);
   		}
   	}
+  	cout << counter <<endl;
+	myfile.close();
+  	
 }
